@@ -38,6 +38,7 @@ const DEFAULT_SETTINGS = {
   rpcEndpoint: NETWORK_PRESETS.localnet.rpcEndpoint,
   programId: DEFAULT_PROGRAM_ID,
 };
+const WALLET_AUTOCONNECT_STORAGE_KEY = 'moono-wallet-autoconnect-v1';
 
 export default class MoonoStateService extends Service {
   refreshPromise = null;
@@ -68,6 +69,7 @@ export default class MoonoStateService extends Service {
     this.loadStoredSettings();
     this.syncPhantomState();
     this.refreshAll();
+    this.restoreWalletConnection();
   }
 
   get blockchainOptions() {
@@ -218,6 +220,32 @@ export default class MoonoStateService extends Service {
     }
   }
 
+  async restoreWalletConnection() {
+    if (!this.shouldAutoconnectWallet()) {
+      return;
+    }
+
+    let provider = getPhantomProvider();
+
+    if (!provider) {
+      return;
+    }
+
+    try {
+      let response = await provider.connect({ onlyIfTrusted: true });
+      this.walletAddress =
+        response?.publicKey?.toBase58?.() ??
+        provider.publicKey?.toBase58?.() ??
+        null;
+
+      if (this.walletAddress) {
+        await this.refreshWalletState();
+      }
+    } catch {
+      this.clearWalletAutoconnectPreference();
+    }
+  }
+
   async toggleWalletConnection() {
     if (this.walletConnected) {
       this.disconnectWallet();
@@ -237,6 +265,7 @@ export default class MoonoStateService extends Service {
     try {
       let response = await provider.connect();
       this.walletAddress = response.publicKey.toBase58();
+      this.persistWalletAutoconnectPreference();
       await this.refreshWalletState();
     } catch (error) {
       this.walletError = error?.message ?? 'Failed to connect wallet.';
@@ -249,6 +278,7 @@ export default class MoonoStateService extends Service {
     let provider = getPhantomProvider();
 
     provider?.disconnect?.();
+    this.clearWalletAutoconnectPreference();
 
     this.walletAddress = null;
     this.walletBalance = null;
@@ -405,6 +435,30 @@ export default class MoonoStateService extends Service {
 
   describeStrategy(slug) {
     return strategyDescription(this.findStrategy(slug));
+  }
+
+  shouldAutoconnectWallet() {
+    if (typeof localStorage === 'undefined') {
+      return false;
+    }
+
+    return localStorage.getItem(WALLET_AUTOCONNECT_STORAGE_KEY) === 'true';
+  }
+
+  persistWalletAutoconnectPreference() {
+    if (typeof localStorage === 'undefined') {
+      return;
+    }
+
+    localStorage.setItem(WALLET_AUTOCONNECT_STORAGE_KEY, 'true');
+  }
+
+  clearWalletAutoconnectPreference() {
+    if (typeof localStorage === 'undefined') {
+      return;
+    }
+
+    localStorage.removeItem(WALLET_AUTOCONNECT_STORAGE_KEY);
   }
 
   async depositToTick(poolAddress, tickIndex, amountInput) {

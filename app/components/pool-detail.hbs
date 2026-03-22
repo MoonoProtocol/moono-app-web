@@ -29,61 +29,63 @@
   <section class="panel">
     <div class="panel-heading">
       <div>
-        <p class="section-label">Tick pages</p>
-        <h3>Available LP ticks</h3>
+        <p class="section-label">Deposit</p>
+        <h3>Choose amount and APY</h3>
       </div>
     </div>
 
-    {{#if this.pool.tickPages.length}}
-      {{#each this.pool.tickPages as |tickPage|}}
-        <article class="panel panel-subtle">
-          <div class="panel-heading">
-            <div>
-              <p class="section-label">Page {{tickPage.pageIndex}}</p>
-              <h3>{{tickPage.address}}</h3>
+    {{#if this.hasAvailableTicks}}
+      <article class="panel panel-subtle">
+        <div class="deposit-builder">
+          <label class="input-field">
+            <span>Deposit amount</span>
+            <input
+              type="text"
+              value={{this.depositAmount}}
+              placeholder="10"
+              disabled={{this.depositDisabled}}
+              {{on "input" this.updateDepositAmount}}
+            />
+          </label>
+
+          <div class="slider-block">
+            <div class="slider-head">
+              <div>
+                <span class="section-label">Selected APY</span>
+                <strong>{{this.selectedTickOption.apyLabel}}</strong>
+              </div>
+            </div>
+
+            <label class="slider-input">
+              <input
+                class="tick-slider"
+                type="range"
+                min="0"
+                max={{this.sliderMax}}
+                step="1"
+                value={{this.selectedTickSliderValue}}
+                disabled={{this.depositDisabled}}
+                {{on "input" this.updateSelectedTickSliderValue}}
+              />
+            </label>
+
+            <div class="slider-scale">
+              <span>{{this.firstTickOption.apyLabel}}</span>
+              <span>{{this.selectedTickOption.apyLabel}}</span>
+              <span>{{this.lastTickOption.apyLabel}}</span>
             </div>
           </div>
 
-          <div class="tick-grid">
-            {{#each tickPage.ticks as |tick|}}
-              <article class="tick-card {{if tick.isNonEmpty 'tick-card-active'}}">
-                <div class="tick-card-head">
-                  <strong>Tick {{tick.absoluteIndex}}</strong>
-                  <span>{{if tick.isNonEmpty "active" "empty"}}</span>
-                </div>
-                <div class="service-list compact-list">
-                  <div class="service-row">
-                    <span>Available liquidity</span>
-                    <strong>{{tick.availableLiquidity}}</strong>
-                  </div>
-                  <div class="service-row">
-                    <span>Total shares</span>
-                    <strong>{{tick.totalShares}}</strong>
-                  </div>
-                </div>
-                <label class="input-field">
-                  <span>Deposit amount</span>
-                  <input
-                    type="text"
-                    value={{get this.depositAmounts tick.absoluteIndex}}
-                    placeholder="10"
-                    disabled={{not this.moonoState.walletConnected}}
-                    {{on "input" (fn this.updateDepositAmount tick.absoluteIndex)}}
-                  />
-                </label>
-                <button
-                  type="button"
-                  class="button button-primary button-block"
-                  disabled={{not this.moonoState.walletConnected}}
-                  {{on "click" (fn this.deposit tick.absoluteIndex)}}
-                >
-                  {{if (get this.depositBusy tick.absoluteIndex) "Depositing..." "Deposit to tick"}}
-                </button>
-              </article>
-            {{/each}}
-          </div>
-        </article>
-      {{/each}}
+          <button
+            type="button"
+            class="button button-primary"
+            disabled={{this.depositDisabled}}
+            {{on "click" this.deposit}}
+          >
+            {{if this.depositBusy "Depositing..." "Deposit liquidity"}}
+          </button>
+        </div>
+      </article>
     {{else}}
       <div class="empty-state">
         No `TickPage` accounts were found for this Asset Pool on the selected RPC.
@@ -105,11 +107,15 @@
           <article class="list-card">
             <div class="asset-pool-card-head">
               <div>
-                <p class="section-label">Tick {{position.tick}}</p>
+                <p class="section-label">{{this.formatTickPercentage position.tick}}</p>
                 <strong>{{position.address}}</strong>
               </div>
             </div>
             <div class="service-list compact-list">
+              <div class="service-row">
+                <span>Tick</span>
+                <strong>{{position.tick}}</strong>
+              </div>
               <div class="service-row">
                 <span>Shares</span>
                 <strong>{{position.sharesFormatted}}</strong>

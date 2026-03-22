@@ -143,6 +143,11 @@ export function parseTokenAmountToBaseUnits(value, decimals) {
   return BigInt(combined || '0');
 }
 
+export function formatTickPercentage(tick) {
+  let tickValue = Number(tick ?? 0);
+  return `${(tickValue / 100).toFixed(2)}%`;
+}
+
 export function deriveProtocolPda(programId) {
   return PublicKey.findProgramAddressSync(
     [PROTOCOL_SEED],
