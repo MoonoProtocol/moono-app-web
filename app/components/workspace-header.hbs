@@ -1,0 +1,80 @@
+<header class="workspace-header">
+  <div class="workspace-header-bar">
+    <div class="workspace-header-top">
+      <div class="workspace-brand">
+        <div class="workspace-mark">M</div>
+        <div>
+          <h1>Moono Protocol</h1>
+          <p>Solana liquidity dashboard for LPs and launch borrowers.</p>
+        </div>
+      </div>
+
+      <div class="workspace-controls">
+        <div class="workspace-control-row">
+          <label class="select-field compact-field">
+            <select {{on "change" this.selectBlockchain}}>
+              {{#each this.moonoState.blockchainOptions as |chainOption|}}
+                <option value={{chainOption.key}} selected={{chainOption.selected}}>
+                  {{chainOption.label}}
+                </option>
+              {{/each}}
+            </select>
+          </label>
+
+          <label class="select-field compact-field">
+            <select {{on "change" this.selectNetwork}}>
+              {{#each this.moonoState.networkOptions as |networkOption|}}
+                <option value={{networkOption.key}} selected={{networkOption.selected}}>
+                  {{networkOption.label}}
+                </option>
+              {{/each}}
+            </select>
+          </label>
+
+          <button
+            type="button"
+            class="button button-secondary button-square"
+            disabled={{this.moonoState.refreshBusy}}
+            {{on "click" this.refresh}}
+          >
+            Refresh
+          </button>
+
+          <button
+            type="button"
+            class="button button-primary wallet-button"
+            disabled={{this.moonoState.walletBusy}}
+            {{on "click" this.toggleWallet}}
+          >
+            {{this.walletButtonLabel}}
+          </button>
+        </div>
+
+        <div class="wallet-balance-row">
+          <div class="wallet-balance-line">
+            Balance:
+            {{if this.moonoState.walletConnected this.moonoState.walletBalanceText "not connected"}}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="workspace-header-bottom">
+      <nav class="workspace-nav" aria-label="Primary">
+        <LinkTo @route="index" class="workspace-link">Information</LinkTo>
+        <LinkTo @route="liquidity-pools" class="workspace-link">Liquidity Pools</LinkTo>
+        <LinkTo @route="borrow" class="workspace-link">Borrow</LinkTo>
+      </nav>
+    </div>
+  </div>
+
+  {{#if this.moonoState.settingsError}}
+    <p class="inline-note tone-danger">{{this.moonoState.settingsError}}</p>
+  {{else if this.moonoState.walletError}}
+    <p class="inline-note tone-danger">{{this.moonoState.walletError}}</p>
+  {{else if this.moonoState.refreshError}}
+    <p class="inline-note tone-danger">{{this.moonoState.refreshError}}</p>
+  {{else if this.moonoState.lastSignature}}
+    <p class="inline-note">Last tx: {{this.moonoState.lastSignature}}</p>
+  {{/if}}
+</header>

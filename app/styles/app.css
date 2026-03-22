@@ -1,1 +1,493 @@
-/* Ember supports plain CSS out of the box. More info: https://cli.emberjs.com/release/advanced-use/stylesheets/ */
+:root {
+  --bg: #f4f6f8;
+  --bg-panel: rgb(255 255 255 / 96%);
+  --bg-panel-strong: #fff;
+  --ink: #111827;
+  --muted: #667085;
+  --line: rgb(17 24 39 / 10%);
+  --accent: #0f766e;
+  --accent-strong: #115e59;
+  --accent-soft: rgb(15 118 110 / 10%);
+  --warn: #b42318;
+  --shadow: 0 8px 20px rgb(15 23 42 / 4%);
+  --radius-xl: 0;
+  --radius-lg: 0;
+  --radius-md: 0;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  min-height: 100%;
+  background:
+    radial-gradient(circle at top left, rgb(15 118 110 / 8%), transparent 24%),
+    linear-gradient(180deg, #f8fafc 0%, #eef2f6 100%);
+  color: var(--ink);
+  font-family: "IBM Plex Sans", "Segoe UI", sans-serif;
+  font-size: 14px;
+  line-height: 1.45;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button,
+input,
+select {
+  font: inherit;
+}
+
+.workspace-header,
+.app-shell {
+  position: relative;
+  z-index: 1;
+}
+
+.workspace-header {
+  padding: 24px;
+}
+
+.workspace-header-bar,
+.workspace-meta-row,
+.hero-card,
+.panel,
+.stat-card,
+.list-card,
+.empty-state {
+  backdrop-filter: blur(18px);
+}
+
+.workspace-header-bar {
+  display: grid;
+  gap: 12px;
+  padding: 12px 14px;
+  border: 1px solid var(--line);
+  border-radius: 0;
+  background: var(--bg-panel);
+  box-shadow: var(--shadow);
+}
+
+.workspace-header-top,
+.workspace-header-bottom {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.workspace-header-bottom {
+  padding-top: 0;
+}
+
+.workspace-brand {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.workspace-brand h1,
+.hero-card h2,
+.panel-heading h3 {
+  margin: 0;
+  font-family: "IBM Plex Sans", "Segoe UI", sans-serif;
+  letter-spacing: -0.02em;
+  font-size: 1.35rem;
+}
+
+.workspace-brand p,
+.hero-copy,
+.helper-note,
+.inline-note {
+  margin: 0;
+  color: var(--muted);
+}
+
+.workspace-mark {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 0;
+  background: linear-gradient(135deg, var(--ink) 0%, #334155 100%);
+  color: white;
+  font-weight: 700;
+  font-size: 0.78rem;
+  text-transform: uppercase;
+}
+
+.workspace-nav,
+.workspace-controls,
+.workspace-meta-row,
+.asset-pool-card-head,
+.panel-heading,
+.service-row,
+.tick-card-head {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.workspace-link {
+  display: inline-flex;
+  align-items: center;
+  min-height: 32px;
+  padding: 0 12px;
+  border: 1px solid transparent;
+  border-radius: 0;
+  background: transparent;
+  color: var(--muted);
+  font-weight: 600;
+  font-size: 0.86rem;
+  transition: 160ms ease;
+}
+
+.workspace-link.active,
+.workspace-link:hover {
+  border-color: var(--line);
+  background: rgb(17 24 39 / 4%);
+  color: var(--ink);
+}
+
+.workspace-nav {
+  padding: 3px;
+  border: 1px solid var(--line);
+  border-radius: 0;
+  background: rgb(248 250 252 / 92%);
+}
+
+.workspace-controls {
+  display: grid;
+  gap: 4px;
+  justify-items: end;
+}
+
+.workspace-control-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+.wallet-balance-row {
+  width: 100%;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.wallet-balance-line {
+  color: var(--muted);
+  font-size: 0.72rem;
+  line-height: 1.2;
+  text-align: right;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+}
+
+.compact-field {
+  min-width: 136px;
+}
+
+.select-field,
+.input-field {
+  display: grid;
+  gap: 5px;
+}
+
+.select-field span,
+.input-field span,
+.section-label,
+.stat-card span,
+.service-row span {
+  font-size: 0.62rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+  line-height: 1.2;
+}
+
+input,
+select {
+  width: 100%;
+  min-height: 32px;
+  padding: 5px 8px;
+  border: 1px solid var(--line);
+  border-radius: 0;
+  background: #fff;
+  color: var(--ink);
+  font-size: 0.84rem;
+}
+
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 32px;
+  padding: 5px 10px;
+  border: 0;
+  border-radius: 0;
+  cursor: pointer;
+  transition: 160ms ease;
+  font-weight: 600;
+  font-size: 0.82rem;
+}
+
+.button:hover {
+  transform: translateY(-1px);
+}
+
+.button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.button-primary {
+  background: var(--ink);
+  color: white;
+}
+
+.button-secondary {
+  background: rgb(17 24 39 / 6%);
+  color: var(--ink);
+}
+
+.button-compact {
+  padding: 5px 9px;
+}
+
+.button-square {
+  min-width: 72px;
+}
+
+.wallet-button {
+  min-width: 132px;
+}
+
+.button-block {
+  width: 100%;
+}
+
+.status-pill {
+  padding: 4px 8px;
+  border: 1px solid var(--line);
+  border-radius: 0;
+  background: rgb(255 255 255 / 78%);
+  color: var(--muted);
+  font-size: 0.74rem;
+}
+
+.status-good {
+  color: var(--accent-strong);
+  background: var(--accent-soft);
+}
+
+.status-warn,
+.tone-danger {
+  color: var(--warn);
+}
+
+.inline-note {
+  margin-top: 6px;
+  font-size: 0.82rem;
+}
+
+.app-shell {
+  width: min(1200px, calc(100% - 32px));
+  margin: 0 auto 40px;
+}
+
+.page-section {
+  display: grid;
+  gap: 18px;
+  padding-bottom: 32px;
+}
+
+.hero-card,
+.panel,
+.stat-card,
+.list-card,
+.empty-state {
+  border: 1px solid var(--line);
+  background: var(--bg-panel);
+  box-shadow: var(--shadow);
+}
+
+.hero-card,
+.panel,
+.list-card,
+.empty-state {
+  padding: 18px;
+  border-radius: var(--radius-xl);
+}
+
+.hero-card {
+  display: grid;
+  gap: 12px;
+}
+
+.hero-card h2 {
+  font-size: 1.5rem;
+}
+
+.stats-grid,
+.two-column-grid,
+.card-list,
+.tick-grid {
+  display: grid;
+  gap: 16px;
+}
+
+.stats-grid {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.stat-card {
+  padding: 14px;
+  border-radius: var(--radius-lg);
+}
+
+.stat-card strong {
+  display: block;
+  margin-top: 8px;
+  font-size: 1.2rem;
+}
+
+.two-column-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.panel {
+  display: grid;
+  gap: 16px;
+}
+
+.panel-subtle,
+.tick-card {
+  background: var(--bg-panel-strong);
+}
+
+.service-list,
+.feature-list {
+  display: grid;
+  gap: 12px;
+}
+
+.service-row {
+  padding-top: 12px;
+  border-top: 1px solid var(--line);
+}
+
+.service-row:first-child {
+  padding-top: 0;
+  border-top: 0;
+}
+
+.compact-list .service-row {
+  gap: 10px;
+}
+
+.feature-row {
+  padding: 11px 12px;
+  border-radius: 0;
+  background: rgb(17 24 39 / 4%);
+  font-size: 0.92rem;
+}
+
+.card-list {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.compact-stack {
+  grid-template-columns: 1fr;
+}
+
+.list-card-compact {
+  padding: 14px;
+}
+
+.tick-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.tick-card {
+  display: grid;
+  gap: 14px;
+  padding: 14px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+}
+
+.tick-card-active {
+  border-color: rgb(13 127 98 / 32%);
+  box-shadow: inset 0 0 0 1px rgb(13 127 98 / 12%);
+}
+
+.tick-card-head span {
+  color: var(--muted);
+  font-size: 0.8rem;
+}
+
+.empty-state {
+  text-align: center;
+  color: var(--muted);
+  font-size: 0.92rem;
+}
+
+@media (width <= 960px) {
+  .stats-grid,
+  .two-column-grid,
+  .card-list,
+  .tick-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .workspace-header-top,
+  .workspace-header-bottom,
+  .workspace-controls {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .workspace-control-row,
+  .wallet-balance-row {
+    justify-content: stretch;
+  }
+
+  .wallet-balance-line {
+    text-align: left;
+    white-space: normal;
+    overflow: visible;
+    text-overflow: clip;
+  }
+
+  .workspace-nav {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .workspace-header {
+    padding: 16px;
+  }
+
+  .app-shell {
+    width: min(100% - 24px, 1200px);
+  }
+
+  .compact-field,
+  .wallet-button,
+  .button-square {
+    min-width: 0;
+    width: 100%;
+  }
+}

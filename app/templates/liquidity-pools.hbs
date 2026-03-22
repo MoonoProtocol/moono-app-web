@@ -1,0 +1,59 @@
+{{page-title "Liquidity Pools"}}
+
+<section class="page-section">
+  <div class="hero-card">
+    <p class="section-label">Liquidity Pools</p>
+    <h2>Browse all Asset Pools</h2>
+    <p class="hero-copy">
+      This list is public. Wallet connection is only required when a user wants
+      to deposit liquidity into a tick or withdraw an existing LP position.
+    </p>
+  </div>
+
+  <div class="card-list">
+    {{#each this.moonoState.assetPools as |pool|}}
+      <article class="list-card">
+        <div class="asset-pool-card-head">
+          <div>
+            <p class="section-label">Asset Pool</p>
+            <strong>{{pool.address}}</strong>
+          </div>
+
+          <LinkTo
+            @route="solana-resource"
+            @model={{pool.address}}
+            class="button button-primary button-compact"
+          >
+            Open pool
+          </LinkTo>
+        </div>
+
+        <div class="service-list compact-list">
+          <div class="service-row">
+            <span>Mint</span>
+            <strong>{{pool.mint}}</strong>
+          </div>
+          <div class="service-row">
+            <span>Total liquidity</span>
+            <strong>{{pool.totalAvailableLiquidityFormatted}}</strong>
+          </div>
+          <div class="service-row">
+            <span>Tick pages</span>
+            <strong>{{pool.tickPages.length}}</strong>
+          </div>
+          <div class="service-row">
+            <span>Deposits / Borrows</span>
+            <strong>
+              {{if pool.allowDeposits "deposit on" "deposit off"}} /
+              {{if pool.allowBorrows "borrow on" "borrow off"}}
+            </strong>
+          </div>
+        </div>
+      </article>
+    {{else}}
+      <div class="empty-state">
+        No Asset Pools were found on the selected RPC endpoint.
+      </div>
+    {{/each}}
+  </div>
+</section>

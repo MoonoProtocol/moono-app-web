@@ -6,4 +6,8 @@ export default class Router extends EmberRouter {
   rootURL = config.rootURL;
 }
 
-Router.map(function () {});
+Router.map(function () {
+  this.route('liquidity-pools');
+  this.route('borrow');
+  this.route('solana-resource', { path: '/solana/:resource_id' });
+});

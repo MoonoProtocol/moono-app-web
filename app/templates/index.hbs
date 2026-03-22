@@ -1,0 +1,83 @@
+{{page-title "Information"}}
+
+<section class="page-section">
+  <div class="hero-card">
+    <p class="section-label">Information</p>
+    <h2>User dashboard for Moono on Solana</h2>
+    <p class="hero-copy">
+      Moono is a liquidity protocol for token launch workflows. This first user
+      interface focuses on Solana LP functionality and prepares the routing,
+      network selection, and strategy surfaces for future borrower flows.
+    </p>
+  </div>
+
+  <section class="stats-grid">
+    <article class="stat-card">
+      <span>Asset Pools</span>
+      <strong>{{this.moonoState.assetPools.length}}</strong>
+    </article>
+    <article class="stat-card">
+      <span>Enabled pools</span>
+      <strong>{{this.moonoState.poolsEnabledCount}}</strong>
+    </article>
+    <article class="stat-card">
+      <span>Strategy configs</span>
+      <strong>{{this.moonoState.executionStrategies.length}}</strong>
+    </article>
+    <article class="stat-card">
+      <span>Total liquidity</span>
+      <strong>{{this.moonoState.totalAvailableLiquidityFormatted}}</strong>
+    </article>
+  </section>
+
+  <section class="two-column-grid">
+    <article class="panel">
+      <div class="panel-heading">
+        <div>
+          <p class="section-label">Protocol</p>
+          <h3>Overview</h3>
+        </div>
+      </div>
+
+      <div class="service-list">
+        <div class="service-row">
+          <span>Blockchain</span>
+          <strong>{{this.moonoState.settings.blockchain}}</strong>
+        </div>
+        <div class="service-row">
+          <span>Network</span>
+          <strong>{{this.moonoState.settings.networkPreset}}</strong>
+        </div>
+        <div class="service-row">
+          <span>RPC</span>
+          <strong>{{this.moonoState.settings.rpcEndpoint}}</strong>
+        </div>
+        <div class="service-row">
+          <span>Program ID</span>
+          <strong>{{this.moonoState.settings.programId}}</strong>
+        </div>
+        <div class="service-row">
+          <span>Protocol PDA</span>
+          <strong>{{this.moonoState.protocolPdaString}}</strong>
+        </div>
+      </div>
+    </article>
+
+    <article class="panel">
+      <div class="panel-heading">
+        <div>
+          <p class="section-label">What is ready now</p>
+          <h3>Current scope</h3>
+        </div>
+      </div>
+
+      <div class="feature-list">
+        <div class="feature-row">Solana wallet connect through Phantom</div>
+        <div class="feature-row">Network switching with preset and custom RPC endpoint</div>
+        <div class="feature-row">Public Asset Pool discovery without authorization</div>
+        <div class="feature-row">Pool details with `TickPage` and tick-level liquidity actions</div>
+        <div class="feature-row">Borrow section with `ExecutionStrategyConfig` details for supported DEX modes</div>
+      </div>
+    </article>
+  </section>
+</section>

@@ -1,0 +1,158 @@
+<section class="page-section">
+  <div class="hero-card">
+    <p class="section-label">Asset Pool</p>
+    <h2>{{this.pool.mint}}</h2>
+    <p class="hero-copy">
+      Deposit liquidity into a specific tick page, monitor active LP positions,
+      and withdraw shares from the same screen.
+    </p>
+    <div class="stats-grid">
+      <article class="stat-card">
+        <span>Total liquidity</span>
+        <strong>{{this.pool.totalAvailableLiquidityFormatted}}</strong>
+      </article>
+      <article class="stat-card">
+        <span>Total shares</span>
+        <strong>{{this.pool.totalSharesFormatted}}</strong>
+      </article>
+      <article class="stat-card">
+        <span>Deposits</span>
+        <strong>{{if this.pool.allowDeposits "enabled" "disabled"}}</strong>
+      </article>
+      <article class="stat-card">
+        <span>Borrows</span>
+        <strong>{{if this.pool.allowBorrows "enabled" "disabled"}}</strong>
+      </article>
+    </div>
+  </div>
+
+  <section class="panel">
+    <div class="panel-heading">
+      <div>
+        <p class="section-label">Tick pages</p>
+        <h3>Available LP ticks</h3>
+      </div>
+    </div>
+
+    {{#if this.pool.tickPages.length}}
+      {{#each this.pool.tickPages as |tickPage|}}
+        <article class="panel panel-subtle">
+          <div class="panel-heading">
+            <div>
+              <p class="section-label">Page {{tickPage.pageIndex}}</p>
+              <h3>{{tickPage.address}}</h3>
+            </div>
+          </div>
+
+          <div class="tick-grid">
+            {{#each tickPage.ticks as |tick|}}
+              <article class="tick-card {{if tick.isNonEmpty 'tick-card-active'}}">
+                <div class="tick-card-head">
+                  <strong>Tick {{tick.absoluteIndex}}</strong>
+                  <span>{{if tick.isNonEmpty "active" "empty"}}</span>
+                </div>
+                <div class="service-list compact-list">
+                  <div class="service-row">
+                    <span>Available liquidity</span>
+                    <strong>{{tick.availableLiquidity}}</strong>
+                  </div>
+                  <div class="service-row">
+                    <span>Total shares</span>
+                    <strong>{{tick.totalShares}}</strong>
+                  </div>
+                </div>
+                <label class="input-field">
+                  <span>Deposit amount</span>
+                  <input
+                    type="text"
+                    value={{get this.depositAmounts tick.absoluteIndex}}
+                    placeholder="10"
+                    disabled={{not this.moonoState.walletConnected}}
+                    {{on "input" (fn this.updateDepositAmount tick.absoluteIndex)}}
+                  />
+                </label>
+                <button
+                  type="button"
+                  class="button button-primary button-block"
+                  disabled={{not this.moonoState.walletConnected}}
+                  {{on "click" (fn this.deposit tick.absoluteIndex)}}
+                >
+                  {{if (get this.depositBusy tick.absoluteIndex) "Depositing..." "Deposit to tick"}}
+                </button>
+              </article>
+            {{/each}}
+          </div>
+        </article>
+      {{/each}}
+    {{else}}
+      <div class="empty-state">
+        No `TickPage` accounts were found for this Asset Pool on the selected RPC.
+      </div>
+    {{/if}}
+  </section>
+
+  <section class="panel">
+    <div class="panel-heading">
+      <div>
+        <p class="section-label">Wallet positions</p>
+        <h3>Open LP positions in this pool</h3>
+      </div>
+    </div>
+
+    {{#if this.positions.length}}
+      <div class="card-list">
+        {{#each this.positions as |position|}}
+          <article class="list-card">
+            <div class="asset-pool-card-head">
+              <div>
+                <p class="section-label">Tick {{position.tick}}</p>
+                <strong>{{position.address}}</strong>
+              </div>
+            </div>
+            <div class="service-list compact-list">
+              <div class="service-row">
+                <span>Shares</span>
+                <strong>{{position.sharesFormatted}}</strong>
+              </div>
+              <div class="service-row">
+                <span>Redeemable liquidity</span>
+                <strong>{{position.redeemableFormatted}}</strong>
+              </div>
+            </div>
+            <label class="input-field">
+              <span>Shares to burn</span>
+              <input
+                type="text"
+                value={{get this.withdrawAmounts position.address}}
+                placeholder={{position.sharesFormatted}}
+                {{on "input" (fn this.updateWithdrawAmount position.address)}}
+              />
+            </label>
+            <button
+              type="button"
+              class="button button-secondary button-block"
+              {{on "click" (fn this.withdraw position.address)}}
+            >
+              {{if
+                (get this.withdrawBusy position.address)
+                "Withdrawing..."
+                "Withdraw liquidity"
+              }}
+            </button>
+          </article>
+        {{/each}}
+      </div>
+    {{else}}
+      <div class="empty-state">
+        No LP positions were found for the connected wallet in this pool.
+      </div>
+    {{/if}}
+
+    {{#if this.actionError}}
+      <p class="inline-note tone-danger">{{this.actionError}}</p>
+    {{/if}}
+    {{#if this.actionMessage}}
+      <p class="inline-note">{{this.actionMessage}}</p>
+    {{/if}}
+  </section>
+</section>

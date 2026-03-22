@@ -1,0 +1,57 @@
+{{page-title "Borrow"}}
+
+<section class="page-section">
+  <div class="hero-card">
+    <p class="section-label">Borrow</p>
+    <h2>Supported launch configurations</h2>
+    <p class="hero-copy">
+      Borrow execution is not wired yet, but the strategy registry is already
+      available so users can inspect each supported DEX mode and the liquidity
+      standing behind it.
+    </p>
+  </div>
+
+  <div class="card-list">
+    {{#each this.moonoState.borrowStrategyCards as |card|}}
+      <article class="list-card">
+        <div class="asset-pool-card-head">
+          <div>
+            <p class="section-label">Strategy</p>
+            <strong>{{card.label}}</strong>
+          </div>
+
+          <LinkTo
+            @route="solana-resource"
+            @model={{card.slug}}
+            class="button button-primary button-compact"
+          >
+            View details
+          </LinkTo>
+        </div>
+
+        <p class="helper-note">
+          {{if
+            card.strategy
+            "On-chain configuration found for this strategy mode."
+            "Configuration account is not initialized on the current RPC."
+          }}
+        </p>
+
+        <div class="service-list compact-list">
+          <div class="service-row">
+            <span>Available pools for borrow</span>
+            <strong>{{card.availableLiquidity.length}}</strong>
+          </div>
+          <div class="service-row">
+            <span>extra_quote_collateral_bps</span>
+            <strong>{{if card.strategy card.strategy.extraQuoteCollateralBps "n/a"}}</strong>
+          </div>
+          <div class="service-row">
+            <span>max_quote_loss_bps</span>
+            <strong>{{if card.strategy card.strategy.maxQuoteLossBps "n/a"}}</strong>
+          </div>
+        </div>
+      </article>
+    {{/each}}
+  </div>
+</section>
