@@ -55,6 +55,13 @@ export const BLOCKCHAIN_OPTIONS = [
     label: 'Solana',
   },
 ];
+export const KNOWN_MINT_LABELS = {
+  So11111111111111111111111111111111111111112: 'SOL',
+  EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v: 'USDC',
+  Es9vMFrzaCERmJfrF4H2FYDutZJ3rrodpAtxEvsCzor: 'USDT',
+  DezXAZ8z7PnrnRJjz3wXBoRgixCa6xjnB7YaB1pPB263: 'BONK',
+  '4zMMC9srt5Ri5X14GAgXhaHii3GnPAEERYPJgZJDncDU': 'USDC',
+};
 
 const encoder = new TextEncoder();
 
@@ -148,6 +155,14 @@ export function formatTickPercentage(tick) {
   return `${(tickValue / 100).toFixed(2)}%`;
 }
 
+export function formatMintDisplayLabel(mint) {
+  if (!mint) {
+    return 'unknown*';
+  }
+
+  return KNOWN_MINT_LABELS[mint] ?? `${mint.slice(0, 4)}*`;
+}
+
 export function deriveProtocolPda(programId) {
   return PublicKey.findProgramAddressSync(
     [PROTOCOL_SEED],
@@ -223,10 +238,11 @@ export function decodeAssetPool(data) {
     protocol: new PublicKey(bytes.slice(10, 42)).toBase58(),
     mint: new PublicKey(bytes.slice(42, 74)).toBase58(),
     vault: new PublicKey(bytes.slice(74, 106)).toBase58(),
-    isEnabled: bytes[106] !== 0,
-    allowDeposits: bytes[107] !== 0,
-    allowBorrows: bytes[108] !== 0,
-    decimals: bytes[109],
+    quoteTreasuryVault: new PublicKey(bytes.slice(106, 138)).toBase58(),
+    isEnabled: bytes[138] !== 0,
+    allowDeposits: bytes[139] !== 0,
+    allowBorrows: bytes[140] !== 0,
+    decimals: bytes[141],
   };
 }
 
@@ -242,11 +258,10 @@ export function decodeTickPage(data) {
 
   for (let tickIndex = 0; tickIndex < PAGE_SIZE; tickIndex++) {
     let offset = 56 + tickIndex * 64;
-    let totalDebtScaled = readU128(view, offset);
-    let borrowIndexRay = readU128(view, offset + 16);
-    let tickShares = view.getBigUint64(offset + 32, true);
-    let availableLiquidity = view.getBigUint64(offset + 40, true);
-    let lastAccrualTs = Number(view.getBigInt64(offset + 48, true));
+    let tickShares = view.getBigUint64(offset, true);
+    let availableLiquidity = view.getBigUint64(offset + 8, true);
+    let outstandingPrincipal = view.getBigUint64(offset + 16, true);
+    let realizedInterestCollected = view.getBigUint64(offset + 24, true);
     let isNonEmpty = availableLiquidity > 0n || tickShares > 0n;
 
     totalAvailableLiquidity += availableLiquidity;
@@ -255,11 +270,10 @@ export function decodeTickPage(data) {
     ticks.push({
       index: tickIndex,
       absoluteIndex: view.getUint32(48, true) * PAGE_SIZE + tickIndex,
-      totalDebtScaled,
-      borrowIndexRay,
       totalShares: tickShares.toString(),
       availableLiquidity: availableLiquidity.toString(),
-      lastAccrualTs,
+      outstandingPrincipal: outstandingPrincipal.toString(),
+      realizedInterestCollected: realizedInterestCollected.toString(),
       isNonEmpty,
     });
   }
@@ -661,12 +675,6 @@ function encodeU64(value) {
   let view = new DataView(buffer);
   view.setBigUint64(0, BigInt(value), true);
   return new Uint8Array(buffer);
-}
-
-function readU128(view, offset) {
-  let low = view.getBigUint64(offset, true);
-  let high = view.getBigUint64(offset + 8, true);
-  return ((high << 64n) + low).toString();
 }
 
 function matchesDiscriminator(data, discriminator) {

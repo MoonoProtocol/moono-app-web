@@ -363,6 +363,31 @@ select {
   font-size: 1.2rem;
 }
 
+.stat-list {
+  display: grid;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.stat-list-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.stat-list-row span {
+  color: var(--muted);
+  font-size: 0.74rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.stat-list-row strong {
+  margin-top: 0;
+  font-size: 0.96rem;
+}
+
 .two-column-grid {
   grid-template-columns: repeat(2, minmax(0, 1fr));
 }

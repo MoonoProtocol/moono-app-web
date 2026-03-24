@@ -26,7 +26,18 @@
     </article>
     <article class="stat-card">
       <span>Total liquidity</span>
-      <strong>{{this.moonoState.totalAvailableLiquidityFormatted}}</strong>
+      {{#if this.moonoState.dashboardLiquidityByMint.length}}
+        <div class="stat-list">
+          {{#each this.moonoState.dashboardLiquidityByMint as |entry|}}
+            <div class="stat-list-row">
+              <span>{{entry.mintLabel}}</span>
+              <strong>{{entry.totalFormatted}}</strong>
+            </div>
+          {{/each}}
+        </div>
+      {{else}}
+        <strong>0</strong>
+      {{/if}}
     </article>
   </section>
 

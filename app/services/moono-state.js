@@ -22,6 +22,7 @@ import {
   fetchProtocolAccount,
   fetchWalletLpPositions,
   fetchWalletTokenBalances,
+  formatMintDisplayLabel,
   formatTokenAmount,
   getPhantomProvider,
   makeConnection,
@@ -124,6 +125,29 @@ export default class MoonoStateService extends Service {
     );
 
     return formatTokenAmount(total, 0);
+  }
+
+  get dashboardLiquidityByMint() {
+    let totalsByMint = new Map();
+
+    for (let pool of this.assetPools) {
+      let existing = totalsByMint.get(pool.mint) ?? {
+        mint: pool.mint,
+        mintLabel: pool.mintLabel,
+        decimals: pool.decimals,
+        totalRaw: 0n,
+      };
+
+      existing.totalRaw += BigInt(pool.totalAvailableLiquidityRaw ?? 0);
+      totalsByMint.set(pool.mint, existing);
+    }
+
+    return [...totalsByMint.values()]
+      .map((entry) => ({
+        ...entry,
+        totalFormatted: formatTokenAmount(entry.totalRaw, entry.decimals),
+      }))
+      .sort((left, right) => left.mintLabel.localeCompare(right.mintLabel));
   }
 
   get borrowStrategyCards() {
@@ -337,6 +361,7 @@ export default class MoonoStateService extends Service {
             return {
               ...pool,
               tickPages: poolTickPages,
+              mintLabel: formatMintDisplayLabel(pool.mint),
               tokenProgram: mintInfo.tokenProgram,
               totalAvailableLiquidityRaw: totalAvailableLiquidityRaw.toString(),
               totalAvailableLiquidityFormatted: formatTokenAmount(
