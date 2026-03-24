@@ -25,6 +25,63 @@ export default class PoolDetailComponent extends Component {
     );
   }
 
+  get walletQuoteAssetBalance() {
+    return this.moonoState.walletTokenBalances.find(
+      (balance) => balance.mint === this.pool?.mint,
+    );
+  }
+
+  get walletQuoteAssetBalanceText() {
+    return this.walletQuoteAssetBalance?.amountFormatted ?? '0';
+  }
+
+  get walletQuoteAssetBalanceRaw() {
+    return BigInt(this.walletQuoteAssetBalance?.amount ?? '0');
+  }
+
+  get walletQuoteAssetBalanceMax() {
+    return formatBaseUnitsForInput(
+      this.walletQuoteAssetBalanceRaw,
+      this.pool?.decimals ?? 0,
+    );
+  }
+
+  get walletQuoteAssetBalanceStep() {
+    let rawBalance = this.walletQuoteAssetBalanceRaw;
+
+    if (rawBalance <= 0n) {
+      return '0.01';
+    }
+
+    let rawStep = rawBalance / 100n;
+
+    if (rawStep <= 0n) {
+      rawStep = 1n;
+    }
+
+    return formatBaseUnitsForInput(rawStep, this.pool?.decimals ?? 0);
+  }
+
+  get depositAmountSliderValue() {
+    if (!this.depositAmount?.trim()) {
+      return '0';
+    }
+
+    let normalized = normalizeDecimalInput(this.depositAmount);
+    let current = Number(normalized);
+    let max = Number(this.walletQuoteAssetBalanceMax);
+
+    if (!Number.isFinite(current) || current < 0) {
+      return '0';
+    }
+
+    if (Number.isFinite(max) && current > max) {
+      return this.walletQuoteAssetBalanceMax;
+    }
+
+    return normalized;
+  }
+
   get availableTicks() {
     return (this.pool?.tickPages ?? [])
       .flatMap((tickPage) =>
@@ -75,6 +132,10 @@ export default class PoolDetailComponent extends Component {
     );
   }
 
+  get depositBalanceSliderDisabled() {
+    return this.depositDisabled || this.walletQuoteAssetBalanceRaw <= 0n;
+  }
+
   get walletDisconnected() {
     return !this.moonoState.walletConnected;
   }
@@ -84,6 +145,10 @@ export default class PoolDetailComponent extends Component {
   }
 
   @action updateDepositAmount(event) {
+    this.depositAmount = event.target.value;
+  }
+
+  @action updateDepositAmountFromSlider(event) {
     this.depositAmount = event.target.value;
   }
 
@@ -151,4 +216,34 @@ export default class PoolDetailComponent extends Component {
       };
     }
   }
+}
+
+function formatBaseUnitsForInput(value, decimals) {
+  let amount = BigInt(value ?? 0);
+  let scale = 10n ** BigInt(decimals);
+  let whole = amount / scale;
+  let fraction = amount % scale;
+
+  if (decimals === 0) {
+    return whole.toString();
+  }
+
+  let paddedFraction = fraction.toString().padStart(decimals, '0');
+  let trimmedFraction = paddedFraction.replace(/0+$/, '');
+
+  return trimmedFraction ? `${whole}.${trimmedFraction}` : whole.toString();
+}
+
+function normalizeDecimalInput(value) {
+  let normalized = String(value ?? '').trim();
+
+  if (!normalized) {
+    return '0';
+  }
+
+  if (normalized.startsWith('.')) {
+    return `0${normalized}`;
+  }
+
+  return normalized;
 }

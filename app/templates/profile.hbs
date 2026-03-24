@@ -1,0 +1,60 @@
+{{page-title "Profile"}}
+
+<section class="page-section">
+  <div class="hero-card">
+    <p class="section-label">Profile</p>
+    <h2>Wallet profile</h2>
+    <p class="hero-copy">
+      Reference view for the connected wallet with SOL balance and all tracked
+      quote asset balances across the protocol.
+    </p>
+  </div>
+
+  {{#if this.moonoState.walletConnected}}
+    <section class="two-column-grid">
+      <article class="panel">
+        <div class="panel-heading">
+          <div>
+            <p class="section-label">Wallet</p>
+            <h3>{{this.moonoState.walletAddress}}</h3>
+          </div>
+        </div>
+
+        <div class="service-list">
+          <div class="service-row">
+            <span>SOL balance</span>
+            <BalanceValue @value={{this.moonoState.walletBalanceText}} />
+          </div>
+        </div>
+      </article>
+
+      <article class="panel">
+        <div class="panel-heading">
+          <div>
+            <p class="section-label">Quote Assets</p>
+            <h3>Tracked token balances</h3>
+          </div>
+        </div>
+
+        {{#if this.moonoState.walletTokenBalances.length}}
+          <div class="service-list">
+            {{#each this.moonoState.walletTokenBalances as |balance|}}
+              <div class="service-row">
+                <span>{{balance.mintLabel}}</span>
+                <BalanceValue @value={{balance.amountFormatted}} />
+              </div>
+            {{/each}}
+          </div>
+        {{else}}
+          <div class="empty-state">
+            No tracked quote asset balances were found for the connected wallet.
+          </div>
+        {{/if}}
+      </article>
+    </section>
+  {{else}}
+    <div class="empty-state">
+      Connect a wallet to view the profile and tracked quote asset balances.
+    </div>
+  {{/if}}
+</section>

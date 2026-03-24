@@ -4,7 +4,6 @@ import { tracked } from '@glimmer/tracking';
 import {
   BLOCKCHAIN_OPTIONS,
   DEFAULT_PROGRAM_ID,
-  MODE_LABELS,
   NETWORK_PRESETS,
   SETTINGS_STORAGE_KEY,
   SOLANA_CHAIN_KEY,
@@ -151,16 +150,11 @@ export default class MoonoStateService extends Service {
   }
 
   get borrowStrategyCards() {
-    let existing = new Map(
-      this.executionStrategies.map((strategy) => [strategy.slug, strategy]),
-    );
-
-    return Object.values(MODE_LABELS).map((label) => {
-      let strategy = existing.get(label);
-
-      return {
-        slug: label,
-        label,
+    return this.executionStrategies
+      .filter((strategy) => strategy.isEnabled)
+      .map((strategy) => ({
+        slug: strategy.slug,
+        label: strategy.label,
         strategy,
         availableLiquidity: this.assetPools
           .filter((pool) => pool.allowBorrows)
@@ -170,8 +164,7 @@ export default class MoonoStateService extends Service {
             totalAvailableLiquidityFormatted:
               pool.totalAvailableLiquidityFormatted,
           })),
-      };
-    });
+      }));
   }
 
   get borrowEnabledPools() {
@@ -416,8 +409,15 @@ export default class MoonoStateService extends Service {
         ),
       ]);
 
-      this.walletBalance = `${(balanceLamports / 1_000_000_000).toFixed(4)} SOL`;
-      this.walletTokenBalances = tokenBalances;
+      this.walletBalance = `${formatTokenAmount(balanceLamports, 9, {
+        preserveTrailingZeros: true,
+      })} SOL`;
+      this.walletTokenBalances = tokenBalances
+        .map((balance) => ({
+          ...balance,
+          mintLabel: formatMintDisplayLabel(balance.mint),
+        }))
+        .sort((left, right) => left.mintLabel.localeCompare(right.mintLabel));
       this.lpPositions = lpPositions.map((position) => {
         let tickPage = position.pool?.tickPages?.find((page) =>
           page.ticks.some((tick) => tick.absoluteIndex === position.tick),

@@ -111,20 +111,30 @@ export function getPhantomProvider() {
   return provider?.isPhantom ? provider : null;
 }
 
-export function formatTokenAmount(value, decimals = 0) {
+export function formatTokenAmount(
+  value,
+  decimals = 0,
+  { preserveTrailingZeros = false } = {},
+) {
   let amount = BigInt(value ?? 0);
   let scale = 10n ** BigInt(decimals);
   let whole = amount / scale;
   let fraction = amount % scale;
 
   if (decimals === 0) {
-    return whole.toString();
+    return formatWholeWithCommas(whole);
   }
 
   let paddedFraction = fraction.toString().padStart(decimals, '0');
-  let trimmedFraction = paddedFraction.replace(/0+$/, '');
+  let trimmedFraction = preserveTrailingZeros
+    ? paddedFraction
+    : paddedFraction.replace(/0+$/, '');
 
-  return trimmedFraction ? `${whole}.${trimmedFraction}` : whole.toString();
+  let formattedWhole = formatWholeWithCommas(whole);
+
+  return trimmedFraction
+    ? `${formattedWhole}.${trimmedFraction}`
+    : formattedWhole;
 }
 
 export function parseTokenAmountToBaseUnits(value, decimals) {
@@ -428,7 +438,9 @@ export async function fetchWalletTokenBalances(connection, owner, assetPools) {
       mint: pool.mint,
       decimals: pool.decimals,
       amount: amount.toString(),
-      amountFormatted: formatTokenAmount(amount, pool.decimals),
+      amountFormatted: formatTokenAmount(amount, pool.decimals, {
+        preserveTrailingZeros: true,
+      }),
     };
   });
 }
@@ -675,6 +687,15 @@ function encodeU64(value) {
   let view = new DataView(buffer);
   view.setBigUint64(0, BigInt(value), true);
   return new Uint8Array(buffer);
+}
+
+function formatWholeWithCommas(value) {
+  let normalized = value.toString();
+  let negative = normalized.startsWith('-');
+  let digits = negative ? normalized.slice(1) : normalized;
+  let grouped = digits.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+
+  return negative ? `-${grouped}` : grouped;
 }
 
 function matchesDiscriminator(data, discriminator) {

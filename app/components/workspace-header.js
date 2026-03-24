@@ -4,11 +4,12 @@ import { inject as service } from '@ember/service';
 
 export default class WorkspaceHeaderComponent extends Component {
   @service('moono-state') moonoState;
+  @service router;
 
   get walletButtonLabel() {
     if (this.moonoState.walletBusy) {
       return this.moonoState.walletConnected
-        ? 'Disconnecting...'
+        ? this.moonoState.walletShort
         : 'Connecting...';
     }
 
@@ -17,8 +18,21 @@ export default class WorkspaceHeaderComponent extends Component {
       : 'Connect wallet';
   }
 
-  @action async toggleWallet() {
+  get showDisconnectButton() {
+    return this.moonoState.walletConnected;
+  }
+
+  @action async handleWalletButton() {
+    if (this.moonoState.walletConnected) {
+      this.router.transitionTo('profile');
+      return;
+    }
+
     await this.moonoState.toggleWalletConnection();
+  }
+
+  @action disconnectWallet() {
+    this.moonoState.disconnectWallet();
   }
 
   @action async selectBlockchain(event) {

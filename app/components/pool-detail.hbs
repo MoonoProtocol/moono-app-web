@@ -36,49 +36,76 @@
 
     {{#if this.hasAvailableTicks}}
       <article class="panel panel-subtle">
-        <div class="deposit-builder">
-          <label class="input-field">
-            <span>Deposit amount</span>
-            <input
-              type="text"
-              value={{this.depositAmount}}
-              placeholder="10"
-              disabled={{this.depositDisabled}}
-              {{on "input" this.updateDepositAmount}}
-            />
-          </label>
-
-          <div class="slider-block">
-            <div class="slider-head">
-              <div>
-                <span class="section-label">Selected APY</span>
-                <strong>{{this.selectedTickOption.apyLabel}}</strong>
-              </div>
-            </div>
-
-            <label class="slider-input">
+        <div class="deposit-builder deposit-builder-columns">
+          <div class="deposit-column">
+            <label class="input-field">
+              <span>Deposit amount</span>
               <input
-                class="tick-slider"
-                type="range"
-                min="0"
-                max={{this.sliderMax}}
-                step="1"
-                value={{this.selectedTickSliderValue}}
+                type="text"
+                value={{this.depositAmount}}
+                placeholder="10"
                 disabled={{this.depositDisabled}}
-                {{on "input" this.updateSelectedTickSliderValue}}
+                {{on "input" this.updateDepositAmount}}
               />
             </label>
 
-            <div class="slider-scale">
-              <span>{{this.firstTickOption.apyLabel}}</span>
-              <span>{{this.selectedTickOption.apyLabel}}</span>
-              <span>{{this.lastTickOption.apyLabel}}</span>
+            <div class="slider-block">
+              <label class="slider-input">
+                <input
+                  class="tick-slider"
+                  type="range"
+                  min="0"
+                  max={{this.walletQuoteAssetBalanceMax}}
+                  step={{this.walletQuoteAssetBalanceStep}}
+                  value={{this.depositAmountSliderValue}}
+                  disabled={{this.depositBalanceSliderDisabled}}
+                  {{on "input" this.updateDepositAmountFromSlider}}
+                />
+              </label>
+
+              <div class="slider-scale">
+                <span>0</span>
+                <span>{{this.walletQuoteAssetBalanceText}} {{this.pool.mintLabel}}</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="deposit-column">
+            <label class="input-field">
+              <span>Selected APY</span>
+              <input
+                type="text"
+                value={{this.selectedTickOption.apyLabel}}
+                readonly
+                disabled={{this.depositDisabled}}
+              />
+            </label>
+
+            <div class="slider-block">
+              <label class="slider-input">
+                <input
+                  class="tick-slider"
+                  type="range"
+                  min="0"
+                  max={{this.sliderMax}}
+                  step="1"
+                  value={{this.selectedTickSliderValue}}
+                  disabled={{this.depositDisabled}}
+                  {{on "input" this.updateSelectedTickSliderValue}}
+                />
+              </label>
+
+              <div class="slider-scale">
+                <span>{{this.firstTickOption.apyLabel}}</span>
+                <span>{{this.selectedTickOption.apyLabel}}</span>
+                <span>{{this.lastTickOption.apyLabel}}</span>
+              </div>
             </div>
           </div>
 
           <button
             type="button"
-            class="button button-primary"
+            class="button button-primary deposit-submit"
             disabled={{this.depositDisabled}}
             {{on "click" this.deposit}}
           >

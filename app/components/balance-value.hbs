@@ -1,0 +1,12 @@
+{{#if this.hasNumericValue}}
+  <span class="balance-value">
+    <span class="balance-whole">{{this.parts.whole}}</span>{{#if this.parts.fraction}}<span
+        class="balance-fraction"
+      >.{{this.parts.fraction}}</span>{{/if}}{{#if this.parts.suffix}}<span
+        class="balance-suffix"
+      >
+        {{this.parts.suffix}}</span>{{/if}}
+  </span>
+{{else}}
+  <span class="balance-value balance-value-plain">{{this.rawValue}}</span>
+{{/if}}

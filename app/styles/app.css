@@ -13,6 +13,7 @@
   --radius-xl: 0;
   --radius-lg: 0;
   --radius-md: 0;
+  --shell-width: 1200px;
 }
 
 * {
@@ -51,6 +52,12 @@ select {
 
 .workspace-header {
   padding: 24px;
+}
+
+.workspace-header-inner,
+.app-shell {
+  width: min(var(--shell-width), calc(100% - 32px));
+  margin: 0 auto;
 }
 
 .workspace-header-bar,
@@ -194,6 +201,49 @@ select {
   max-width: 100%;
 }
 
+.balance-value {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0;
+  font-variant-numeric: tabular-nums;
+  color: var(--ink);
+  white-space: nowrap;
+}
+
+.balance-value .balance-whole {
+  font-weight: 700;
+  color: var(--ink);
+  font-size: 1.45rem;
+  line-height: 1;
+  letter-spacing: -0.03em;
+  text-transform: none;
+}
+
+.balance-value .balance-fraction {
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: var(--ink);
+  line-height: 1;
+  text-transform: none;
+}
+
+.balance-value .balance-suffix {
+  margin-left: 0.35em;
+  font-size: 0.82rem;
+  font-weight: 500;
+  color: var(--ink);
+  line-height: 1;
+  text-transform: none;
+}
+
+.balance-value-plain {
+  color: var(--ink);
+}
+
+.service-row > .balance-value {
+  justify-self: end;
+}
+
 .compact-field {
   min-width: 136px;
 }
@@ -274,6 +324,11 @@ select {
   min-width: 132px;
 }
 
+.disconnect-button {
+  min-width: 32px;
+  padding-inline: 0;
+}
+
 .button-block {
   width: 100%;
 }
@@ -303,8 +358,7 @@ select {
 }
 
 .app-shell {
-  width: min(1200px, calc(100% - 32px));
-  margin: 0 auto 40px;
+  margin-bottom: 40px;
 }
 
 .page-section {
@@ -414,6 +468,22 @@ select {
   gap: 12px;
 }
 
+.deposit-builder-columns {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.deposit-column {
+  display: grid;
+  gap: 12px;
+  align-content: start;
+  grid-template-rows: auto 1fr;
+}
+
+.deposit-submit {
+  grid-column: 1 / -1;
+  justify-self: start;
+}
+
 .slider-input {
   display: block;
 }
@@ -518,6 +588,14 @@ select {
     grid-template-columns: 1fr;
   }
 
+  .deposit-builder-columns {
+    grid-template-columns: 1fr;
+  }
+
+  .deposit-submit {
+    width: 100%;
+  }
+
   .workspace-header-top,
   .workspace-header-bottom,
   .workspace-controls {
@@ -551,13 +629,15 @@ select {
     padding: 16px;
   }
 
+  .workspace-header-inner,
   .app-shell {
-    width: min(100% - 24px, 1200px);
+    width: min(100% - 24px, var(--shell-width));
   }
 
   .compact-field,
   .wallet-button,
-  .button-square {
+  .button-square,
+  .disconnect-button {
     min-width: 0;
     width: 100%;
   }
