@@ -30,7 +30,7 @@
     <div class="panel-heading">
       <div>
         <p class="section-label">Deposit</p>
-        <h3>Choose amount and APY</h3>
+        <h3>Amount, Tick, Deposit</h3>
       </div>
     </div>
 
@@ -39,7 +39,7 @@
         <div class="deposit-builder deposit-builder-columns">
           <div class="deposit-column">
             <label class="input-field">
-              <span>Deposit amount</span>
+              <span>Amount ({{this.depositAssetSymbol}})</span>
               <input
                 type="text"
                 value={{this.depositAmount}}
@@ -65,14 +65,14 @@
 
               <div class="slider-scale">
                 <span>0</span>
-                <span>{{this.walletQuoteAssetBalanceText}} {{this.pool.mintLabel}}</span>
+                <span>{{this.walletQuoteAssetBalanceText}} {{this.depositAssetSymbol}}</span>
               </div>
             </div>
           </div>
 
           <div class="deposit-column">
             <label class="input-field">
-              <span>Selected APY</span>
+              <span>Tick</span>
               <input
                 type="text"
                 value={{this.selectedTickOption.apyLabel}}
@@ -109,7 +109,7 @@
             disabled={{this.depositDisabled}}
             {{on "click" this.deposit}}
           >
-            {{if this.depositBusy "Depositing..." "Deposit liquidity"}}
+            {{if this.depositBusy "Depositing..." "Deposit"}}
           </button>
         </div>
       </article>
@@ -121,12 +121,12 @@
   </section>
 
   <section class="panel">
-    <div class="panel-heading">
-      <div>
-        <p class="section-label">Wallet positions</p>
-        <h3>Open LP positions in this pool</h3>
+      <div class="panel-heading">
+        <div>
+          <p class="section-label">Wallet positions</p>
+          <h3>Withdraw</h3>
+        </div>
       </div>
-    </div>
 
     {{#if this.positions.length}}
       <div class="card-list">
@@ -161,6 +161,24 @@
                 {{on "input" (fn this.updateWithdrawAmount position.address)}}
               />
             </label>
+            <div class="slider-block">
+              <label class="slider-input">
+                <input
+                  class="tick-slider"
+                  type="range"
+                  min="0"
+                  max={{this.withdrawSliderMax position}}
+                  step={{this.withdrawSliderStep position}}
+                  value={{this.withdrawSliderValue position}}
+                  {{on "input" (fn this.updateWithdrawAmountFromSlider position.address)}}
+                />
+              </label>
+
+              <div class="slider-scale">
+                <span>0</span>
+                <span>{{position.sharesFormatted}}</span>
+              </div>
+            </div>
             <button
               type="button"
               class="button button-secondary button-block"
@@ -169,7 +187,7 @@
               {{if
                 (get this.withdrawBusy position.address)
                 "Withdrawing..."
-                "Withdraw liquidity"
+                "Withdraw"
               }}
             </button>
           </article>

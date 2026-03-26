@@ -32,22 +32,40 @@ export default class PoolDetailComponent extends Component {
   }
 
   get walletQuoteAssetBalanceText() {
-    return this.walletQuoteAssetBalance?.amountFormatted ?? '0';
+    return this.depositBalanceText;
   }
 
-  get walletQuoteAssetBalanceRaw() {
+  get depositAssetSymbol() {
+    return this.isWsolPool ? 'SOL' : this.pool?.mintLabel;
+  }
+
+  get isWsolPool() {
+    return this.pool?.mint === 'So11111111111111111111111111111111111111112';
+  }
+
+  get depositBalanceRaw() {
+    if (this.isWsolPool) {
+      return BigInt(this.moonoState.walletBalanceLamports ?? '0');
+    }
+
     return BigInt(this.walletQuoteAssetBalance?.amount ?? '0');
+  }
+
+  get depositBalanceText() {
+    return this.isWsolPool
+      ? (this.moonoState.walletBalanceText?.replace(/ SOL$/, '') ?? '0')
+      : (this.walletQuoteAssetBalance?.amountFormatted ?? '0');
   }
 
   get walletQuoteAssetBalanceMax() {
     return formatBaseUnitsForInput(
-      this.walletQuoteAssetBalanceRaw,
+      this.depositBalanceRaw,
       this.pool?.decimals ?? 0,
     );
   }
 
   get walletQuoteAssetBalanceStep() {
-    let rawBalance = this.walletQuoteAssetBalanceRaw;
+    let rawBalance = this.depositBalanceRaw;
 
     if (rawBalance <= 0n) {
       return '0.01';
@@ -133,7 +151,7 @@ export default class PoolDetailComponent extends Component {
   }
 
   get depositBalanceSliderDisabled() {
-    return this.depositDisabled || this.walletQuoteAssetBalanceRaw <= 0n;
+    return this.depositDisabled || this.depositBalanceRaw <= 0n;
   }
 
   get walletDisconnected() {
@@ -143,6 +161,51 @@ export default class PoolDetailComponent extends Component {
   formatTickPercentage(tick) {
     return formatTickPercentage(tick);
   }
+
+  withdrawSliderMax(position) {
+    return formatBaseUnitsForInput(
+      position?.shares ?? 0,
+      position?.decimals ?? 0,
+    );
+  }
+
+  withdrawSliderStep(position) {
+    let rawShares = BigInt(position?.shares ?? 0);
+
+    if (rawShares <= 0n) {
+      return '0.01';
+    }
+
+    let rawStep = rawShares / 100n;
+
+    if (rawStep <= 0n) {
+      rawStep = 1n;
+    }
+
+    return formatBaseUnitsForInput(rawStep, position?.decimals ?? 0);
+  }
+
+  withdrawSliderValue = (position) => {
+    let value = this.withdrawAmounts[position.address];
+
+    if (!value?.trim()) {
+      return '0';
+    }
+
+    let normalized = normalizeDecimalInput(value);
+    let current = Number(normalized);
+    let max = Number(this.withdrawSliderMax(position));
+
+    if (!Number.isFinite(current) || current < 0) {
+      return '0';
+    }
+
+    if (Number.isFinite(max) && current > max) {
+      return this.withdrawSliderMax(position);
+    }
+
+    return normalized;
+  };
 
   @action updateDepositAmount(event) {
     this.depositAmount = event.target.value;
@@ -157,6 +220,13 @@ export default class PoolDetailComponent extends Component {
   }
 
   @action updateWithdrawAmount(positionAddress, event) {
+    this.withdrawAmounts = {
+      ...this.withdrawAmounts,
+      [positionAddress]: event.target.value,
+    };
+  }
+
+  @action updateWithdrawAmountFromSlider(positionAddress, event) {
     this.withdrawAmounts = {
       ...this.withdrawAmounts,
       [positionAddress]: event.target.value,

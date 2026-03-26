@@ -462,6 +462,23 @@ select {
   gap: 12px;
 }
 
+.borrow-form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.profile-action-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: end;
+}
+
+.borrow-wide-field {
+  grid-column: 1 / -1;
+}
+
 .deposit-builder,
 .slider-block {
   display: grid;
@@ -589,6 +606,10 @@ select {
   }
 
   .deposit-builder-columns {
+    grid-template-columns: 1fr;
+  }
+
+  .borrow-form-grid {
     grid-template-columns: 1fr;
   }
 

@@ -1,0 +1,11 @@
+{{page-title "Loan"}}
+
+{{#if this.loan}}
+  <LoanDetail @loan={{this.loan}} />
+{{else}}
+  <section class="page-section">
+    <div class="empty-state">
+      Loan `{{this.model.address}}` was not found on the selected RPC for the connected wallet.
+    </div>
+  </section>
+{{/if}}

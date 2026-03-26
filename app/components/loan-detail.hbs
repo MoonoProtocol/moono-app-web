@@ -1,0 +1,198 @@
+<section class="page-section">
+  <div class="hero-card">
+    <p class="section-label">{{this.loan.statusLabel}}</p>
+    <h2>{{this.loan.address}}</h2>
+    <p class="hero-copy">
+      Stateful on-chain loan view. Funding and execution continue from this loan
+      address rather than from transient strategy-page state.
+    </p>
+  </div>
+
+  <section class="two-column-grid">
+    <article class="panel">
+      <div class="panel-heading">
+        <div>
+          <p class="section-label">Loan</p>
+          <h3>Summary</h3>
+        </div>
+      </div>
+
+      <div class="service-list">
+        <div class="service-row">
+          <span>Strategy</span>
+          <strong>{{if this.loan.strategy this.loan.strategy.label "n/a"}}</strong>
+        </div>
+        <div class="service-row">
+          <span>Quote asset</span>
+          <strong>{{if this.loan.pool this.loan.pool.mintLabel "n/a"}}</strong>
+        </div>
+        <div class="service-row">
+          <span>Requested quote</span>
+          <strong>{{this.loan.requestedQuoteAmountFormatted}} {{this.loan.pool.mintLabel}}</strong>
+        </div>
+        <div class="service-row">
+          <span>Funded quote</span>
+          <strong>{{this.loan.fundedQuoteAmountFormatted}} {{this.loan.pool.mintLabel}}</strong>
+        </div>
+        <div class="service-row">
+          <span>Extra buy funds required at launch</span>
+          <strong>{{this.loan.extraUserQuoteAmountFormatted}} {{this.loan.pool.mintLabel}}</strong>
+        </div>
+        <div class="service-row">
+          <span>Required buffer</span>
+          <strong>{{this.loan.requiredQuoteBufferAmountFormatted}} {{this.loan.pool.mintLabel}}</strong>
+        </div>
+        <div class="service-row">
+          <span>Upfront paid now</span>
+          <strong>{{this.upfrontPaidNowFormatted}} {{this.loan.pool.mintLabel}}</strong>
+        </div>
+      </div>
+    </article>
+
+    <article class="panel">
+      <div class="panel-heading">
+        <div>
+          <p class="section-label">Route plan</p>
+          <h3>Stored fills</h3>
+        </div>
+      </div>
+
+      {{#if this.storedPlan}}
+        <div class="service-list">
+          <div class="service-row">
+            <span>planned_slice_count</span>
+            <strong>{{this.storedPlan.plannedSliceCount}}</strong>
+          </div>
+          <div class="service-row">
+            <span>upfront interest</span>
+            <strong>{{this.loan.totalUpfrontInterestPaidFormatted}} {{this.loan.pool.mintLabel}}</strong>
+          </div>
+          <div class="service-row">
+            <span>protocol fee</span>
+            <strong>{{this.loan.totalProtocolFeePaidFormatted}} {{this.loan.pool.mintLabel}}</strong>
+          </div>
+          <div class="service-row">
+            <span>platform cost</span>
+            <strong>{{this.loan.totalPlatformCostPaidFormatted}} {{this.loan.pool.mintLabel}}</strong>
+          </div>
+        </div>
+      {{else}}
+        <div class="empty-state">
+          Route plan is not stored locally for this loan yet.
+        </div>
+      {{/if}}
+
+      {{#if this.isExecuted}}
+        <div class="service-list compact-list">
+          <div class="service-row">
+            <span>Mint</span>
+            <strong>{{this.loan.collateralMint}}</strong>
+          </div>
+          <div class="service-row">
+            <span>Collateral vault</span>
+            <strong>{{this.loan.collateralVault}}</strong>
+          </div>
+          <div class="service-row">
+            <span>Collateral amount</span>
+            <strong>{{this.loan.collateralAmount}} base units</strong>
+          </div>
+        </div>
+      {{/if}}
+    </article>
+  </section>
+
+  <section class="panel">
+    <div class="panel-heading">
+      <div>
+        <p class="section-label">Lifecycle</p>
+        <h3>Fund and execute</h3>
+      </div>
+    </div>
+
+    <div class="profile-action-group">
+      <button
+        type="button"
+        class="button button-secondary"
+        disabled={{this.fundDisabled}}
+        {{on "click" this.fundLoan}}
+      >
+        {{if this.fundingBusy "Funding..." "Fund loan from ticks"}}
+      </button>
+
+      <button
+        type="button"
+        class="button button-primary"
+        disabled={{this.executeDisabled}}
+        {{on "click" this.executeLaunch}}
+      >
+        {{if this.executeBusy "Executing..." "Execute launch"}}
+      </button>
+    </div>
+
+    <div class="service-list compact-list">
+      <div class="service-row">
+        <span>Loan quote spend</span>
+        <strong>{{this.plannedLoanQuoteSpendFormatted}} {{this.loan.pool.mintLabel}}</strong>
+      </div>
+      <div class="service-row">
+        <span>Extra buy funds required at launch</span>
+        <strong>{{this.extraBuyFundsRequiredAtLaunchFormatted}} {{this.loan.pool.mintLabel}}</strong>
+      </div>
+      <div class="service-row">
+        <span>Collateral min base out</span>
+        <strong>{{this.collateralMinBaseOut}}</strong>
+      </div>
+      <div class="service-row">
+        <span>Immediate user min base out</span>
+        <strong>{{this.immediateUserMinBaseOut}}</strong>
+      </div>
+    </div>
+
+    <p class="inline-note">
+      Execution spend values are derived from the opened loan and route plan,
+      so they are shown as read-only estimates here.
+    </p>
+    <p class="inline-note">
+      Upfront paid now includes buffer, interest, protocol fee, and platform
+      cost. Extra buy funds are spent only during execute.
+    </p>
+    <p class="inline-note">
+      Name, symbol, and URI are required for the live pump.fun `create_v2`
+      execution path.
+    </p>
+
+    <div class="borrow-form-grid">
+      <label class="input-field">
+        <span>Name</span>
+        <input
+          type="text"
+          value={{this.tokenName}}
+          {{on "input" (fn this.updateField "tokenName")}}
+        />
+      </label>
+      <label class="input-field">
+        <span>Symbol</span>
+        <input
+          type="text"
+          value={{this.tokenSymbol}}
+          {{on "input" (fn this.updateField "tokenSymbol")}}
+        />
+      </label>
+      <label class="input-field borrow-wide-field">
+        <span>URI</span>
+        <input
+          type="text"
+          value={{this.tokenUri}}
+          {{on "input" (fn this.updateField "tokenUri")}}
+        />
+      </label>
+    </div>
+
+    {{#if this.actionError}}
+      <p class="inline-note tone-danger">{{this.actionError}}</p>
+    {{/if}}
+    {{#if this.actionMessage}}
+      <p class="inline-note">{{this.actionMessage}}</p>
+    {{/if}}
+  </section>
+</section>

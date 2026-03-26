@@ -31,4 +31,8 @@ export default class SolanaResourceController extends Controller {
 
     return this.moonoState.describeStrategy(this.model?.slug);
   }
+
+  get isPumpFunStrategy() {
+    return this.strategy?.mode === 1;
+  }
 }

@@ -1,0 +1,58 @@
+{{page-title "Loans"}}
+
+<section class="page-section">
+  <div class="hero-card">
+    <p class="section-label">Loans</p>
+    <h2>Wallet loan positions</h2>
+    <p class="hero-copy">
+      Stateful list of on-chain loans for the connected wallet. Open each loan
+      by address to continue funding or execution.
+    </p>
+  </div>
+
+  {{#if this.moonoState.walletConnected}}
+    <div class="card-list">
+      {{#each this.moonoState.walletLoans as |loan|}}
+        <article class="list-card">
+          <div class="asset-pool-card-head">
+            <div>
+              <p class="section-label">{{loan.statusLabel}}</p>
+              <strong>{{loan.address}}</strong>
+            </div>
+
+            <LinkTo
+              @route="loan"
+              @model={{loan.address}}
+              class="button button-primary button-compact"
+            >
+              Open loan
+            </LinkTo>
+          </div>
+
+          <div class="service-list compact-list">
+            <div class="service-row">
+              <span>Strategy</span>
+              <strong>{{if loan.strategy loan.strategy.label "n/a"}}</strong>
+            </div>
+            <div class="service-row">
+              <span>Quote asset</span>
+              <strong>{{if loan.pool loan.pool.mintLabel "n/a"}}</strong>
+            </div>
+            <div class="service-row">
+              <span>Requested / Funded</span>
+              <strong>{{loan.requestedQuoteAmountFormatted}} / {{loan.fundedQuoteAmountFormatted}}</strong>
+            </div>
+          </div>
+        </article>
+      {{else}}
+        <div class="empty-state">
+          No loans were found for the connected wallet.
+        </div>
+      {{/each}}
+    </div>
+  {{else}}
+    <div class="empty-state">
+      Connect a wallet to load on-chain loan positions.
+    </div>
+  {{/if}}
+</section>

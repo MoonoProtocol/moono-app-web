@@ -13,87 +13,91 @@
 {{else}}
   {{page-title this.model.slug}}
 
-  <section class="page-section">
-    <div class="hero-card">
-      <p class="section-label">Borrow strategy</p>
-      <h2>{{this.model.slug}}</h2>
-      <p class="hero-copy">{{this.strategyDescription}}</p>
-    </div>
+  {{#if this.isPumpFunStrategy}}
+    <BorrowStrategyDetail @strategy={{this.strategy}} />
+  {{else}}
+    <section class="page-section">
+      <div class="hero-card">
+        <p class="section-label">Borrow strategy</p>
+        <h2>{{this.model.slug}}</h2>
+        <p class="hero-copy">{{this.strategyDescription}}</p>
+      </div>
 
-    <section class="two-column-grid">
-      <article class="panel">
-        <div class="panel-heading">
-          <div>
-            <p class="section-label">ExecutionStrategyConfig</p>
-            <h3>On-chain parameters</h3>
-          </div>
-        </div>
-
-        {{#if this.strategy}}
-          <div class="service-list">
-            <div class="service-row">
-              <span>Address</span>
-              <strong>{{this.strategy.address}}</strong>
-            </div>
-            <div class="service-row">
-              <span>is_enabled</span>
-              <strong>{{this.strategy.isEnabled}}</strong>
-            </div>
-            <div class="service-row">
-              <span>extra_quote_collateral_bps</span>
-              <strong>{{this.strategy.extraQuoteCollateralBps}}</strong>
-            </div>
-            <div class="service-row">
-              <span>max_quote_loss_bps</span>
-              <strong>{{this.strategy.maxQuoteLossBps}}</strong>
-            </div>
-            <div class="service-row">
-              <span>min_quote_buffer_amount</span>
-              <strong>{{this.strategy.minQuoteBufferAmount}}</strong>
-            </div>
-            <div class="service-row">
-              <span>fixed_migration_cost_quote</span>
-              <strong>{{this.strategy.fixedMigrationCostQuote}}</strong>
+      <section class="two-column-grid">
+        <article class="panel">
+          <div class="panel-heading">
+            <div>
+              <p class="section-label">ExecutionStrategyConfig</p>
+              <h3>On-chain parameters</h3>
             </div>
           </div>
-        {{else}}
-          <div class="empty-state">
-            No strategy config account was found for this mode on the selected RPC.
-          </div>
-        {{/if}}
-      </article>
 
-      <article class="panel">
-        <div class="panel-heading">
-          <div>
-            <p class="section-label">Available liquidity</p>
-            <h3>Borrow-ready Asset Pools</h3>
-          </div>
-        </div>
-
-        <div class="card-list compact-stack">
-          {{#each this.moonoState.borrowEnabledPools as |pool|}}
-            <article class="list-card list-card-compact">
-              <div class="service-list compact-list">
-                <div class="service-row">
-                  <span>Pool</span>
-                  <strong>{{pool.address}}</strong>
-                </div>
-                <div class="service-row">
-                  <span>Mint</span>
-                  <strong>{{pool.mint}}</strong>
-                </div>
-                <div class="service-row">
-                  <span>Liquidity</span>
-                  <strong>{{pool.totalAvailableLiquidityFormatted}}</strong>
-                </div>
+          {{#if this.strategy}}
+            <div class="service-list">
+              <div class="service-row">
+                <span>Address</span>
+                <strong>{{this.strategy.address}}</strong>
               </div>
-            </article>
+              <div class="service-row">
+                <span>is_enabled</span>
+                <strong>{{this.strategy.isEnabled}}</strong>
+              </div>
+              <div class="service-row">
+                <span>extra_quote_collateral_bps</span>
+                <strong>{{this.strategy.extraQuoteCollateralBps}}</strong>
+              </div>
+              <div class="service-row">
+                <span>max_quote_loss_bps</span>
+                <strong>{{this.strategy.maxQuoteLossBps}}</strong>
+              </div>
+              <div class="service-row">
+                <span>min_quote_buffer_amount</span>
+                <strong>{{this.strategy.minQuoteBufferAmount}}</strong>
+              </div>
+              <div class="service-row">
+                <span>fixed_migration_cost_quote</span>
+                <strong>{{this.strategy.fixedMigrationCostQuote}}</strong>
+              </div>
+            </div>
           {{else}}
-            <div class="empty-state">No borrow-enabled Asset Pools were found.</div>
-          {{/each}}
-        </div>
-      </article>
+            <div class="empty-state">
+              No strategy config account was found for this mode on the selected RPC.
+            </div>
+          {{/if}}
+        </article>
+
+        <article class="panel">
+          <div class="panel-heading">
+            <div>
+              <p class="section-label">Available liquidity</p>
+              <h3>Borrow-ready Asset Pools</h3>
+            </div>
+          </div>
+
+          <div class="card-list compact-stack">
+            {{#each this.moonoState.borrowEnabledPools as |pool|}}
+              <article class="list-card list-card-compact">
+                <div class="service-list compact-list">
+                  <div class="service-row">
+                    <span>Pool</span>
+                    <strong>{{pool.address}}</strong>
+                  </div>
+                  <div class="service-row">
+                    <span>Mint</span>
+                    <strong>{{pool.mintLabel}}</strong>
+                  </div>
+                  <div class="service-row">
+                    <span>Liquidity</span>
+                    <strong>{{pool.totalAvailableLiquidityFormatted}}</strong>
+                  </div>
+                </div>
+              </article>
+            {{else}}
+              <div class="empty-state">No borrow-enabled Asset Pools were found.</div>
+            {{/each}}
+          </div>
+        </article>
+      </section>
     </section>
-  </section>
+  {{/if}}
 {{/if}}

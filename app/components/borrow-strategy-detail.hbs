@@ -1,0 +1,220 @@
+<section class="page-section">
+  <div class="hero-card">
+    <p class="section-label">Borrow strategy</p>
+    <h2>{{this.strategy.slug}}</h2>
+    <p class="hero-copy">
+      The frontend builds the route plan locally, opens the loan, funds it from
+      LP ticks in the WSOL pool, and then executes the launch on pump.fun with
+      wallet and mint-keypair signatures.
+    </p>
+
+    <div class="stats-grid">
+      <article class="stat-card">
+        <span>Quote asset</span>
+        <strong>{{if this.poolAvailable this.pool.mintLabel "WSOL pool missing"}}</strong>
+      </article>
+      <article class="stat-card">
+        <span>Borrow liquidity</span>
+        <strong>{{if this.poolAvailable this.pool.totalAvailableLiquidityFormatted "0"}}</strong>
+      </article>
+      <article class="stat-card">
+        <span>Latest loan</span>
+        <strong>{{if this.latestPumpFunLoan this.latestPumpFunLoan.statusLabel "none"}}</strong>
+      </article>
+      <article class="stat-card">
+        <span>Runtime config</span>
+        <strong>{{if this.runtimeConfigReady this.pumpFunConfig.label "incomplete"}}</strong>
+      </article>
+    </div>
+  </div>
+
+  <section class="two-column-grid">
+    <article class="panel">
+      <div class="panel-heading">
+        <div>
+          <p class="section-label">Planning</p>
+          <h3>Quote plan on the frontend</h3>
+        </div>
+      </div>
+
+      {{#if this.poolAvailable}}
+        <div class="service-list">
+          <div class="borrow-form-grid">
+            <label class="input-field">
+              <span>Requested quote</span>
+              <input
+                type="text"
+                value={{this.requestedQuoteAmount}}
+                {{on "input" (fn this.updateField "requestedQuoteAmount")}}
+              />
+            </label>
+            <label class="input-field">
+              <span>Extra buy funds</span>
+              <input
+                type="text"
+                value={{this.extraUserQuoteAmount}}
+                {{on "input" (fn this.updateField "extraUserQuoteAmount")}}
+              />
+            </label>
+            <label class="input-field">
+              <span>Term</span>
+              <input
+                type="text"
+                value={{this.termDays}}
+                {{on "input" (fn this.updateField "termDays")}}
+              />
+            </label>
+          </div>
+
+          {{#if this.plan}}
+            <div class="service-list compact-list">
+              <div class="service-row">
+                <span>requested quote</span>
+                <strong>{{this.plan.requestedQuoteAmountFormatted}} {{this.pool.mintLabel}}</strong>
+              </div>
+              <div class="service-row">
+                <span>borrowed principal</span>
+                <strong>{{this.plan.fundedQuoteAmountFormatted}} {{this.pool.mintLabel}}</strong>
+              </div>
+              <div class="service-row">
+                <span>planned_slice_count</span>
+                <strong>{{this.plan.plannedSliceCount}}</strong>
+              </div>
+              <div class="service-row">
+                <span>required buffer</span>
+                <strong>{{this.plan.requiredQuoteBufferAmountFormatted}} {{this.pool.mintLabel}}</strong>
+              </div>
+              <div class="service-row">
+                <span>upfront interest</span>
+                <strong>{{this.plan.totalUpfrontInterestPaidFormatted}} {{this.pool.mintLabel}}</strong>
+              </div>
+              <div class="service-row">
+                <span>protocol fee</span>
+                <strong>{{this.plan.totalProtocolFeePaidFormatted}} {{this.pool.mintLabel}}</strong>
+              </div>
+              <div class="service-row">
+                <span>platform cost</span>
+                <strong>{{this.plan.totalPlatformCostPaidFormatted}} {{this.pool.mintLabel}}</strong>
+              </div>
+              <div class="service-row">
+                <span>upfront paid now</span>
+                <strong>{{this.upfrontPaidNowFormatted}} {{this.pool.mintLabel}}</strong>
+              </div>
+              <div class="service-row">
+                <span>extra buy funds required at launch</span>
+                <strong>{{this.extraBuyFundsRequiredAtLaunchFormatted}} {{this.pool.mintLabel}}</strong>
+              </div>
+            </div>
+
+            <div class="card-list compact-stack">
+              {{#each this.fillRows as |fill|}}
+                <article class="list-card list-card-compact">
+                  <div class="service-list compact-list">
+                    <div class="service-row">
+                      <span>APY tick</span>
+                      <strong>{{fill.tickLabel}}</strong>
+                    </div>
+                    <div class="service-row">
+                      <span>Principal</span>
+                      <strong>{{fill.principalFormatted}} {{this.pool.mintLabel}}</strong>
+                    </div>
+                    <div class="service-row">
+                      <span>Upfront interest</span>
+                      <strong>{{fill.upfrontInterestFormatted}} {{this.pool.mintLabel}}</strong>
+                    </div>
+                    <div class="service-row">
+                      <span>Protocol fee</span>
+                      <strong>{{fill.protocolFeeFormatted}} {{this.pool.mintLabel}}</strong>
+                    </div>
+                  </div>
+                </article>
+              {{/each}}
+            </div>
+
+            <button
+              type="button"
+              class="button button-primary"
+              disabled={{this.openLoanDisabled}}
+              {{on "click" this.openLoan}}
+            >
+              {{if this.plannerBusy "Opening..." "Open loan"}}
+            </button>
+          {{else if this.planError}}
+            <p class="inline-note tone-danger">{{this.planError}}</p>
+          {{/if}}
+        </div>
+      {{else}}
+        <div class="empty-state">
+          No borrow-enabled WSOL Asset Pool was found. pump.fun borrow flow can
+          only run against `NATIVE_MINT`.
+        </div>
+      {{/if}}
+    </article>
+
+    <article class="panel">
+      <div class="panel-heading">
+        <div>
+          <p class="section-label">Loans</p>
+          <h3>Continue on stateful loan pages</h3>
+        </div>
+      </div>
+
+      <div class="service-list">
+        {{#if this.latestPumpFunLoan}}
+          <div class="service-row">
+            <span>Latest loan</span>
+            <strong>{{this.latestPumpFunLoan.address}}</strong>
+          </div>
+          <div class="service-row">
+            <span>Status</span>
+            <strong>{{this.latestPumpFunLoan.statusLabel}}</strong>
+          </div>
+          <div class="service-row">
+            <span>Funded amount</span>
+            <strong>{{this.latestPumpFunLoan.fundedQuoteAmountFormatted}} {{this.pool.mintLabel}}</strong>
+          </div>
+          <div class="service-row">
+            <span>Next step</span>
+            <strong>Open the loan page by address</strong>
+          </div>
+          <LinkTo
+            @route="loan"
+            @model={{this.latestPumpFunLoan.address}}
+            class="button button-primary button-compact"
+          >
+            Open loan page
+          </LinkTo>
+          <LinkTo
+            @route="loans"
+            class="button button-secondary button-compact"
+          >
+            All loans
+          </LinkTo>
+        {{else}}
+          <div class="empty-state">
+            No on-chain loans were found yet for this wallet.
+          </div>
+        {{/if}}
+
+        {{#if this.latestExecutedLoan}}
+          <div class="service-row">
+            <span>Latest executed mint</span>
+            <strong>{{this.latestExecutedLoan.collateralMint}}</strong>
+          </div>
+        {{/if}}
+      </div>
+
+      {{#unless this.runtimeConfigReady}}
+        <p class="inline-note tone-danger">
+          Runtime config for pump.fun is incomplete on this network.
+        </p>
+      {{/unless}}
+      {{#if this.actionError}}
+        <p class="inline-note tone-danger">{{this.actionError}}</p>
+      {{/if}}
+      {{#if this.actionMessage}}
+        <p class="inline-note">{{this.actionMessage}}</p>
+      {{/if}}
+    </article>
+  </section>
+</section>

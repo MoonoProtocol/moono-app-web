@@ -52,6 +52,52 @@
         {{/if}}
       </article>
     </section>
+
+    <section class="panel">
+      <div class="panel-heading">
+        <div>
+          <p class="section-label">WSOL</p>
+          <h3>Manual wrap / unwrap</h3>
+        </div>
+      </div>
+
+      <div class="borrow-form-grid">
+        <label class="input-field">
+          <span>Wrap SOL amount</span>
+          <input
+            type="text"
+            value={{this.wrapAmount}}
+            placeholder="1"
+            {{on "input" this.updateWrapAmount}}
+          />
+        </label>
+
+        <div class="profile-action-group">
+          <button
+            type="button"
+            class="button button-primary"
+            {{on "click" this.wrapSol}}
+          >
+            {{if this.wrapBusy "Wrapping..." "Wrap SOL to WSOL"}}
+          </button>
+
+          <button
+            type="button"
+            class="button button-secondary"
+            {{on "click" this.unwrapAllWsol}}
+          >
+            {{if this.unwrapBusy "Unwrapping..." "Unwrap all WSOL to SOL"}}
+          </button>
+        </div>
+      </div>
+
+      {{#if this.actionError}}
+        <p class="inline-note tone-danger">{{this.actionError}}</p>
+      {{/if}}
+      {{#if this.actionMessage}}
+        <p class="inline-note">{{this.actionMessage}}</p>
+      {{/if}}
+    </section>
   {{else}}
     <div class="empty-state">
       Connect a wallet to view the profile and tracked quote asset balances.
