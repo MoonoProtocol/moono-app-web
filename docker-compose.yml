@@ -1,0 +1,7 @@
+services:
+  moono-web:
+    build: .
+    ports:
+      - "4201:4201"
+    environment:
+      - NODE_ENV=development

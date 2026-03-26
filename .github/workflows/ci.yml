@@ -45,3 +45,54 @@ jobs:
         run: npm ci
       - name: Run Tests
         run: npm test
+
+  deploy-ipfs:
+    name: "Deploy to IPFS"
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    needs: [lint, test]
+    if: github.event_name == 'pull_request' || github.ref == 'refs/heads/main'
+
+    steps:
+      - uses: actions/checkout@v3
+      - name: Install Node
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+          cache: npm
+      - name: Install Dependencies
+        run: npm ci
+      - name: Build Production
+        run: npx ember build --environment=production
+      - name: Upload to IPFS via Pinata
+        id: pinata
+        run: |
+          cd dist
+          CMD="curl -s -X POST 'https://api.pinata.cloud/pinning/pinFileToIPFS' \
+            -H 'Authorization: Bearer ${{ secrets.PINATA_JWT }}'"
+          for file in $(find . -type f | sed 's|^\./||'); do
+            CMD="$CMD -F 'file=@$file;filename=site/$file'"
+          done
+          CMD="$CMD -F 'pinataMetadata={\"name\":\"moono-pr-${{ github.event.number || github.sha }}\"}' \
+            -F 'pinataOptions={\"wrapWithDirectory\":true}'"
+          RESPONSE=$(eval $CMD)
+          echo "$RESPONSE"
+          HASH=$(echo "$RESPONSE" | python3 -c "import json,sys; print(json.load(sys.stdin)['IpfsHash'])")
+          echo "ipfs_hash=$HASH" >> $GITHUB_OUTPUT
+      - name: Comment PR with IPFS link
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const hash = '${{ steps.pinata.outputs.ipfs_hash }}';
+            const body = `### IPFS Preview Deploy\n\n` +
+              `**CID:** \`${hash}\`\n\n` +
+              `- https://dweb.link/ipfs/${hash}/site/\n` +
+              `- https://w3s.link/ipfs/${hash}/site/\n` +
+              `- https://ipfs.io/ipfs/${hash}/site/`;
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body
+            });
